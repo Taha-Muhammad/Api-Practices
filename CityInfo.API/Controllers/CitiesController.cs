@@ -4,15 +4,19 @@ using CityInfo.API.Services.Interfaces;
 using CityInfo.API.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
+using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CityInfo.API.Controllers
 {
 	[Route("api/cities")]
     [ApiController]
+    [Authorize]
     public class CitiesController : ControllerBase
     {
         private readonly ICityInfoRepository _cityInfoRepository;
 		private readonly IMapper _mapper;
+        private const int maxCitiesPageSize = 20;
 
 		public CitiesController(ICityInfoRepository cityInfoRepository,IMapper mapper)
         {
@@ -22,9 +26,20 @@ namespace CityInfo.API.Controllers
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<CityWithoutPointOfInterestDto>>> GetCities(string? name,string? searchQuery)
+        public async Task<ActionResult<IEnumerable<CityWithoutPointOfInterestDto>>> GetCitiesAsync
+            (string? name,string? searchQuery
+            ,int pageNumber = 1, int pageSize = 10)
         {
-            var cities = await _cityInfoRepository.GetCitiesAsync(name,searchQuery);
+            if(pageSize > maxCitiesPageSize) 
+                pageSize = maxCitiesPageSize;
+
+            var (cities,paginationMetadata) = await _cityInfoRepository
+                .GetCitiesAsync(name,searchQuery,pageNumber,pageSize);
+
+            var serializedMetadata = JsonSerializer.Serialize(paginationMetadata);
+            if(serializedMetadata != null)
+                Response.Headers.Append("X-Pagination",serializedMetadata);
+
 			return Ok(_mapper.Map<IEnumerable<CityWithoutPointOfInterestDto>>(cities));
         }
 
@@ -33,7 +48,9 @@ namespace CityInfo.API.Controllers
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		public async Task<IActionResult> GetCity(int cityId,bool includePointsOfInterest = false)
         {
-            var city = await _cityInfoRepository.GetCityAsync(cityId,includePointsOfInterest);
+            
+            var city = await _cityInfoRepository.GetCityAsync
+                (cityId,includePointsOfInterest);
 
             if (city == null)
                 return NotFound();

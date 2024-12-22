@@ -1,6 +1,126 @@
-@CityInfo.API_HostAddress = http://localhost:5049
+@CityInfoApi_HostAddress = https://localhost:7192
 
-GET {{CityInfo.API_HostAddress}}/weatherforecast/
-Accept: application/json
+
+POST {{CityInfoApi_HostAddress}}/api/authentication/authenticate
+Content-Type: application/json
+
+{
+  "userName": "username",
+  "password":"password"
+}
 
 ###
+//the token you got from the authenticate request
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZ2l2ZW5fbmFtZSI6IlRhaGEiLCJmYW1pbHlfbmFtZSI6Ik1vaGFtZWQiLCJjaXR5IjoiQ2Fpcm8iLCJuYmYiOjE3MzQ4NzkwODcsImV4cCI6MTczNDg4MjY4NywiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo3MTkyIiwiYXVkIjoiY2l0eWluZm9hcGkifQ.dlNOb77u0qwfJx_nbR7Q7p6ihpaUb4MkvlCrGV6nCkU
+
+GET {{CityInfoApi_HostAddress}}/api/cities
+Authorization: Bearer {{token}}
+
+###
+
+GET {{CityInfoApi_HostAddress}}/api/cities?name=Giza
+Authorization: Bearer {{token}}
+
+###
+
+GET {{CityInfoApi_HostAddress}}/api/cities?searchQuery=city
+Authorization: Bearer {{token}}
+
+###
+
+GET {{CityInfoApi_HostAddress}}/api/cities?name=Giza&searchQuery=city
+Authorization: Bearer {{token}}
+
+###
+
+GET {{CityInfoAPI_HostAddress}}/api/cities/1
+Authorization: Bearer {{token}}
+
+###
+
+POST {{CityInfoApi_HostAddress}}/api/cities
+Authorization: Bearer {{token}}
+Content-Type: application/json
+{
+  "name": "new city",
+  "description": "An Unknown city"
+}
+###
+// the Id that you got from the post request
+@cityId = 13 
+
+PUT {{CityInfoApi_HostAddress}}/api/cities/{{cityId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+{
+  "name": "new city",
+  "description": "It's known now"
+}
+###
+
+GET {{CityInfoApi_HostAddress}}/api/cities/{{cityId}}
+Authorization: Bearer {{token}}
+
+###
+
+PATCH {{CityInfoApi_HostAddress}}/api/cities/{{cityId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+[{
+    "op": "replace",
+    "path": "/name",
+    "value": "not new city any more"
+}]
+###
+
+DELETE {{CityInfoApi_HostAddress}}/api/cities/{{cityId}}
+Authorization: Bearer {{token}}
+
+###
+//Points Of Interest Controller
+
+GET {{CityInfoApi_HostAddress}}/api/cities/1/pointsofinterest
+Authorization: Bearer {{token}}
+
+###
+
+GET {{CityInfoApi_HostAddress}}/api/cities/1/pointsofinterest/2
+Authorization: Bearer {{token}}
+
+###
+
+POST {{CityInfoApi_HostAddress}}/api/cities/4/pointsofinterest
+Authorization: Bearer {{token}}
+Content-Type: application/json
+{
+  "name": "El Gezera",
+  "description": "An island in the middle of the nile"
+}
+###
+// the Id that you got from the post request
+@pointId = 10 
+
+PUT {{CityInfoApi_HostAddress}}/api/cities/4/pointsofinterest/{{pointId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+{
+  "name": "El Gezera",
+  "description": "An island in the middle of the nile..."
+}
+###
+
+PATCH {{CityInfoApi_HostAddress}}/api/cities/4/pointsofinterest/{{pointId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+[{
+  "op": "replace",
+  "path": "/name",
+  "value": "Al Gazera"
+}]
+###
+
+DELETE {{CityInfoApi_HostAddress}}/api/cities/4/pointsofinterest/{{pointId}}
+Authorization: Bearer {{token}}
+###
+
+
