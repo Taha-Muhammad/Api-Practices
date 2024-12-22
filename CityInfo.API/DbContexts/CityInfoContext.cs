@@ -16,7 +16,8 @@ namespace CityInfo.API.DbContexts
 		}
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
-			optionsBuilder.UseSqlServer(_configuration.GetConnectionString("CityInfoConnectionString"));
+			string connectionString = _configuration.GetConnectionString("CityInfoConnectionString");
+			optionsBuilder.UseSqlServer(connectionString);
 			base.OnConfiguring(optionsBuilder);
 		}
 		protected override void OnModelCreating(ModelBuilder modelBuilder)

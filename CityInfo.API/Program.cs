@@ -1,16 +1,28 @@
-using CityInfo.API.DbContexts;
-using System.Text.Json;
+﻿using CityInfo.API.DbContexts;
+using CityInfo.API.Profiles;
+using CityInfo.API.Services;
+using CityInfo.API.Services.Interfaces;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddControllers(
+	opt => {
+		opt.ReturnHttpNotAcceptable = true;
+	})
+	.AddNewtonsoftJson()
+	.AddJsonOptions
+	(opt=>opt.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles)
+	.AddXmlDataContractSerializerFormatters();
 
-builder.Services.AddControllers().AddJsonOptions(opt=>opt.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 builder.Services.AddDbContext<CityInfoContext>();
+
+builder.Services.AddScoped<ICityInfoRepository, CityInfoRepository>();
+
+builder.Services.AddAutoMapper(typeof(CityProfile).Assembly);
 
 var app = builder.Build();
 
@@ -26,5 +38,6 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
 
 app.Run();
