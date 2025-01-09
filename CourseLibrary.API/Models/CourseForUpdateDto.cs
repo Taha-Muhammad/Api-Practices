@@ -1,8 +1,13 @@
-﻿namespace CourseLibrary.API.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace CourseLibrary.API.Models
 {
-	public class CourseForUpdateDto
+	public class CourseForUpdateDto:CourseForManipulationDto
 	{
-		public string Title { get; set; } = string.Empty;
-		public string Description { get; set; } = string.Empty;
+		[Required(ErrorMessage ="You should fill out a description.")]
+		public override string Description
+#pragma warning disable CS8765 // Nullability of type of parameter doesn't match overridden member (possibly because of nullability attributes).
+		{ get => base.Description!; set => base.Description = value; }
+#pragma warning restore CS8765 // Nullability of type of parameter doesn't match overridden member (possibly because of nullability attributes).
 	}
 }

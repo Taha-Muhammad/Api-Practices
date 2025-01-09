@@ -4,6 +4,9 @@ using CourseLibrary.API.Models;
 using CourseLibrary.API.Services;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.Options;
 
 namespace CourseLibrary.API.Controllers;
 
@@ -105,8 +108,8 @@ public class AuthorsController : ControllerBase
 			var authorForUpdateDto = new AuthorForUpdateDto();
 			patchDocument.ApplyTo(authorForUpdateDto,ModelState);
 
-			if (!ModelState.IsValid)
-				return BadRequest();
+			if (!TryValidateModel(authorForUpdateDto))
+				return ValidationProblem(ModelState);
 
 			var authorToAdd = _mapper.
 				Map<Author>(authorForUpdateDto);
@@ -125,8 +128,8 @@ public class AuthorsController : ControllerBase
 			.Map<AuthorForUpdateDto>(authorEntity);
 		patchDocument.ApplyTo(authorToPatch,ModelState);
 
-		if (!ModelState.IsValid)
-			return BadRequest();
+		if (!TryValidateModel(authorToPatch))
+			return ValidationProblem(ModelState);
 
 		_mapper.Map(authorToPatch,authorEntity);
 		_courseLibraryRepository.UpdateAuthor(authorEntity);
@@ -153,5 +156,12 @@ public class AuthorsController : ControllerBase
 	{
 		Response.Headers.Append("Allow", "GET,HEAD,POST,PUT,PATCH,DELETE,OPTIONS");
 		return Ok();
+	}
+	public override ActionResult ValidationProblem([ActionResultObjectValue] ModelStateDictionary modelStateDictionary)
+	{
+		var options = HttpContext.RequestServices
+			.GetRequiredService<IOptions<ApiBehaviorOptions>>();
+		return (ActionResult)options.Value
+			.InvalidModelStateResponseFactory(ControllerContext);
 	}
 }
