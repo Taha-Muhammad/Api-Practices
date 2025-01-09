@@ -1,5 +1,7 @@
 ﻿using CourseLibrary.API.DbContexts;
 using CourseLibrary.API.Entities;
+using CourseLibrary.API.Helpers;
+using CourseLibrary.API.ResourceParameters;
 using Microsoft.EntityFrameworkCore;
 
 namespace CourseLibrary.API.Services;
@@ -59,6 +61,30 @@ public class CourseLibraryRepository : ICourseLibraryRepository
 					.Where(c => c.AuthorId == authorId)
 					.OrderBy(c => c.Title).ToListAsync();
 	}
+	public async Task<PagedList<Course>> GetCoursesAsync(Guid authorId, CoursesResourceParameters resourceParameters)
+	{
+		ArgumentNullException.ThrowIfNull(resourceParameters);
+
+		var courseCollection = _context.Courses as IQueryable<Course>;
+
+		if (!string.IsNullOrWhiteSpace(resourceParameters.Title))
+		{
+			var title = resourceParameters.Title.Trim();
+			courseCollection = courseCollection.Where(c =>
+			c.Title == title);
+		}
+		if (!string.IsNullOrWhiteSpace(resourceParameters.SearchQuery))
+		{
+			var searchQuery = resourceParameters.SearchQuery.Trim();
+			courseCollection = courseCollection.Where(c =>
+			c.Title.Contains(searchQuery) ||
+			(c.Description != null && c.Description.Contains(searchQuery)));
+		}
+
+		return await PagedList<Course>.CreateAsync(courseCollection,
+			resourceParameters.PageNumber
+			, resourceParameters.PageSize);
+	}
 
 	public void UpdateCourse(Course course)
 	{
@@ -107,7 +133,31 @@ public class CourseLibraryRepository : ICourseLibraryRepository
 
 		return await _context.Authors.FirstOrDefaultAsync(a => a.Id == authorId);
 	}
+	public async Task<PagedList<Author>> GetAuthorsAsync(AuthorsResourceParameters resourceParameters)
+	{
+		ArgumentNullException.ThrowIfNull(resourceParameters);
 
+		var authorsCollection = _context.Authors as IQueryable<Author>;
+		
+		if(!string.IsNullOrWhiteSpace(resourceParameters.MainCategory))
+		{
+			var mainCategory = resourceParameters.MainCategory.Trim();
+			authorsCollection = authorsCollection.Where(a=>
+			a.MainCategory==mainCategory);
+		}
+		if(!string.IsNullOrWhiteSpace(resourceParameters.SearchQuery))
+		{
+			var searchQuery = resourceParameters.SearchQuery.Trim();
+			authorsCollection = authorsCollection.Where(a=>
+			a.FirstName.Contains(searchQuery)||
+			a.LastName.Contains(searchQuery)||
+			a.MainCategory.Contains(searchQuery));
+		}
+
+		return await PagedList<Author>.CreateAsync(authorsCollection,
+			resourceParameters.PageNumber
+			,resourceParameters.PageSize);
+	}
 
 	public async Task<IEnumerable<Author>> GetAuthorsAsync()
 	{
@@ -133,4 +183,5 @@ public class CourseLibraryRepository : ICourseLibraryRepository
 	{
 		return (await _context.SaveChangesAsync() >= 0);
 	}
+
 }
