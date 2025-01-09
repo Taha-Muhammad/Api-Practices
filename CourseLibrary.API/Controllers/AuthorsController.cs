@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using CourseLibrary.API.Entities;
 using CourseLibrary.API.Models;
+using CourseLibrary.API.ResourceParameters;
 using CourseLibrary.API.Services;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -27,15 +27,20 @@ public class AuthorsController : ControllerBase
 			throw new ArgumentNullException(nameof(mapper));
 	}
 
-	[HttpGet]
+	[HttpGet(Name ="GetAuthors")]
 	[HttpHead]
-	public async Task<ActionResult<IEnumerable<AuthorDto>>> GetAuthors()
+	public async Task<ActionResult<IEnumerable<AuthorDto>>> GetAuthors(
+		[FromQuery] AuthorsResourceParameters resourceParameters)
 	{
 		var authorsFromRepo = await _courseLibraryRepository
-			.GetAuthorsAsync();
-
+			.GetAuthorsAsync(resourceParameters);
+		Response.Headers.Append("X-Pagination",
+		authorsFromRepo.CreatePaginationHeaderContent(resourceParameters, authorsFromRepo,Url,"GetAuthors",resourceParameters.MainCategory)); 
+		
 		return Ok(_mapper.Map<IEnumerable<AuthorDto>>(authorsFromRepo));
 	}
+
+	
 
 	[HttpGet("{authorId}", Name = "GetAuthor")]
 	public async Task<ActionResult<AuthorDto>> GetAuthor(Guid authorId)

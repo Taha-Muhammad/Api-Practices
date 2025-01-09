@@ -1,6 +1,6 @@
-﻿
-using AutoMapper;
+﻿using AutoMapper;
 using CourseLibrary.API.Models;
+using CourseLibrary.API.ResourceParameters;
 using CourseLibrary.API.Services;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -26,16 +26,22 @@ public class CoursesController : ControllerBase
 			throw new ArgumentNullException(nameof(mapper));
 	}
 
-	[HttpGet]
+	[HttpGet(Name ="GetCoursesForAuthor")]
 	[HttpHead]
-	public async Task<ActionResult<IEnumerable<CourseDto>>> GetCoursesForAuthor(Guid authorId)
+	public async Task<ActionResult<IEnumerable<CourseDto>>> GetCoursesForAuthor(Guid authorId, [FromQuery] CoursesResourceParameters coursesResourceParameters)
 	{
 		if (!await _courseLibraryRepository.AuthorExistsAsync(authorId))
 		{
 			return NotFound();
 		}
 
-		var coursesForAuthorFromRepo = await _courseLibraryRepository.GetCoursesAsync(authorId);
+		var coursesForAuthorFromRepo = await _courseLibraryRepository.GetCoursesAsync(authorId,coursesResourceParameters);
+		Response.Headers.Append("X-Pagination",coursesForAuthorFromRepo
+			.CreatePaginationHeaderContent(
+				coursesResourceParameters
+				, coursesForAuthorFromRepo, Url,
+				"GetCoursesForAuthor", null,
+				coursesResourceParameters.Title));
 		return Ok(_mapper.Map<IEnumerable<CourseDto>>(coursesForAuthorFromRepo));
 	}
 

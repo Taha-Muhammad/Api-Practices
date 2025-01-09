@@ -1,15 +1,19 @@
-﻿using CourseLibrary.API.Entities; 
+﻿using CourseLibrary.API.Entities;
+using CourseLibrary.API.Helpers;
+using CourseLibrary.API.ResourceParameters;
 
 namespace CourseLibrary.API.Services;
 
 public interface ICourseLibraryRepository
 {
 	Task<IEnumerable<Course>> GetCoursesAsync(Guid authorId);
+	Task<PagedList<Course>> GetCoursesAsync(Guid authorId,CoursesResourceParameters resourceParameters);
 	Task<Course?> GetCourseAsync(Guid authorId, Guid courseId);
 	void AddCourse(Guid authorId, Course course);
 	void UpdateCourse(Course course);
 	void DeleteCourse(Course course);
 	Task<IEnumerable<Author>> GetAuthorsAsync();
+	Task<PagedList<Author>> GetAuthorsAsync(AuthorsResourceParameters resourceParameters);
 	Task<Author?> GetAuthorAsync(Guid authorId);
 	Task<IEnumerable<Author>> GetAuthorsAsync(IEnumerable<Guid> authorIds);
 	void AddAuthor(Author author);
