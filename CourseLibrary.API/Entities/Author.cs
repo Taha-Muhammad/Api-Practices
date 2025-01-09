@@ -21,6 +21,7 @@ public class Author
 	public string MainCategory { get; set; }
 
 	public ICollection<Course> Courses { get; set; } = [];
+
 	public Author(string firstName, string lastName, string mainCategory)
 	{
 		FirstName = firstName;

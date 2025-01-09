@@ -10,7 +10,9 @@ public class AuthorsProfile : Profile
 			.ForMember(dest => dest.Name, opt =>
 				opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
 			.ForMember(dest => dest.Age, opt =>
-				opt.MapFrom(src => src.DateOfBirth.GetCurrentAge())).ReverseMap();
-
+				opt.MapFrom(src => src.DateOfBirth.GetCurrentAge()));
+		
+		CreateMap<Entities.Author, Models.AuthorForCreationDto>().ReverseMap();
+		CreateMap<Entities.Author, Models.AuthorForUpdateDto>().ReverseMap();
 	}
 }

@@ -2,12 +2,13 @@
 using AutoMapper;
 using CourseLibrary.API.Models;
 using CourseLibrary.API.Services;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CourseLibrary.API.Controllers;
 
 [ApiController]
-[Route("api/author/{authorId}/courses")]
+[Route("api/authors/{authorId}/courses")]
 public class CoursesController : ControllerBase
 {
 	private readonly ICourseLibraryRepository _courseLibraryRepository;
@@ -23,6 +24,7 @@ public class CoursesController : ControllerBase
 	}
 
 	[HttpGet]
+	[HttpHead]
 	public async Task<ActionResult<IEnumerable<CourseDto>>> GetCoursesForAuthor(Guid authorId)
 	{
 		if (!await _courseLibraryRepository.AuthorExistsAsync(authorId))
@@ -51,7 +53,6 @@ public class CoursesController : ControllerBase
 		return Ok(_mapper.Map<CourseDto>(courseForAuthorFromRepo));
 	}
 
-
 	[HttpPost]
 	public async Task<ActionResult<CourseDto>> CreateCourseForAuthor(
 			Guid authorId, CourseForCreationDto course)
@@ -66,25 +67,38 @@ public class CoursesController : ControllerBase
 		await _courseLibraryRepository.SaveAsync();
 
 		var courseToReturn = _mapper.Map<CourseDto>(courseEntity);
-		return CreatedAtAction(nameof(GetCourseForAuthor), new {authorId=authorId,courseId=courseToReturn.Id},courseToReturn);
+		return CreatedAtAction(nameof(GetCourseForAuthor),
+			new { authorId, courseId = courseToReturn.Id },
+			courseToReturn);
 	}
-
 
 	[HttpPut("{courseId}")]
 	public async Task<IActionResult> UpdateCourseForAuthor(Guid authorId,
 	  Guid courseId,
-	  CourseDto course)
+	  CourseForUpdateDto course)
 	{
 		if (!await _courseLibraryRepository.AuthorExistsAsync(authorId))
 		{
 			return NotFound();
 		}
 
-		var courseForAuthorFromRepo = await _courseLibraryRepository.GetCourseAsync(authorId, courseId);
+		var courseForAuthorFromRepo = await _courseLibraryRepository.
+			GetCourseAsync(authorId, courseId);
 
 		if (courseForAuthorFromRepo == null)
 		{
 			return NotFound();
+			/*UnComment for Upserting			
+ 			var courseToAdd = _mapper.Map<Course>(course);
+			courseToAdd.Id = courseId;
+
+			_courseLibraryRepository.AddCourse(authorId, courseToAdd);
+			await _courseLibraryRepository.SaveAsync();
+
+			var courseToReturn = _mapper.Map<CourseDto>(courseToAdd);
+			return CreatedAtAction(nameof(GetCourseForAuthor),
+				new { authorId, courseId },
+				courseToReturn);*/
 		}
 
 		_mapper.Map(course, courseForAuthorFromRepo);
@@ -92,6 +106,56 @@ public class CoursesController : ControllerBase
 		_courseLibraryRepository.UpdateCourse(courseForAuthorFromRepo);
 
 		await _courseLibraryRepository.SaveAsync();
+		return NoContent();
+	}
+
+	[HttpPatch("{courseId}")]
+	public async Task<IActionResult> PartiallyUpdateCourseForAuthor(
+		Guid authorId,
+		Guid courseId,
+		JsonPatchDocument<CourseForUpdateDto> patchDocument)
+	{
+		if (!await _courseLibraryRepository.AuthorExistsAsync(authorId))
+			return NotFound();
+
+		var courseForAuthorFromRepo = await _courseLibraryRepository
+			.GetCourseAsync(authorId, courseId);
+		
+		if (courseForAuthorFromRepo == null)
+		{
+			return NotFound();
+			/* UnComment for Upserting
+			var courseDto = new CourseForUpdateDto();
+			patchDocument.ApplyTo(courseDto,ModelState);
+
+			if (!ModelState.IsValid)
+				return BadRequest(ModelState);
+			
+			var courseToAdd = _mapper.Map<Course>(courseDto);
+			courseToAdd.Id = courseId;
+			
+			_courseLibraryRepository.AddCourse(authorId, courseToAdd);
+			await _courseLibraryRepository.SaveAsync();
+
+			var courseToReturn = _mapper.Map<CourseDto>(courseToAdd);
+			
+			return CreatedAtAction(nameof(GetCourseForAuthor), 
+				new {authorId, courseId},
+				courseToReturn);*/
+		}
+
+		var courseToPatch = _mapper
+			.Map<CourseForUpdateDto>(courseForAuthorFromRepo);
+
+		patchDocument.ApplyTo(courseToPatch,ModelState);
+		
+		if(!ModelState.IsValid)
+			return BadRequest(ModelState);
+
+		_mapper.Map(courseToPatch, courseForAuthorFromRepo);
+		_courseLibraryRepository.UpdateCourse(courseForAuthorFromRepo);
+		await _courseLibraryRepository.SaveAsync();
+
 		return NoContent();
 	}
 
@@ -114,6 +178,13 @@ public class CoursesController : ControllerBase
 		await _courseLibraryRepository.SaveAsync();
 
 		return NoContent();
+	}
+
+	[HttpOptions]
+	public IActionResult GetCoursesOptions(Guid authorId)
+	{
+		Response.Headers.Append("Allow", "GET,HEAD,POST,PUT,PATCH,DELETE,OPTIONS");
+		return Ok();
 	}
 
 }

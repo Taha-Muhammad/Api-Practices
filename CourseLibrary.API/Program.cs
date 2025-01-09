@@ -2,10 +2,15 @@
 using CourseLibrary.API.DbContexts;
 using CourseLibrary.API.Services;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers(opt=>opt.ReturnHttpNotAcceptable = true).AddXmlDataContractSerializerFormatters();
+builder.Services.AddControllers(opt=>opt.ReturnHttpNotAcceptable = true)
+	.AddNewtonsoftJson(setupAction=>
+	setupAction.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver()
+	)
+	.AddXmlDataContractSerializerFormatters();
 
 builder.Services.AddScoped<ICourseLibraryRepository, CourseLibraryRepository>();
 builder.Services.AddDbContext<CourseLibraryDbContext>(options =>
@@ -19,7 +24,6 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();

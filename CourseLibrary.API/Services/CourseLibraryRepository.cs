@@ -20,22 +20,19 @@ public class CourseLibraryRepository : ICourseLibraryRepository
 			throw new ArgumentNullException(nameof(authorId));
 		}
 
-		if (course == null)
-		{
-			throw new ArgumentNullException(nameof(course));
-		}
+		ArgumentNullException.ThrowIfNull(course);
 
-		// always set the AuthorId to the passed-in authorId
 		course.AuthorId = authorId;
 		_context.Courses.Add(course);
 	}
 
 	public void DeleteCourse(Course course)
 	{
+		ArgumentNullException.ThrowIfNull(course);
 		_context.Courses.Remove(course);
 	}
 
-	public async Task<Course> GetCourseAsync(Guid authorId, Guid courseId)
+	public async Task<Course?> GetCourseAsync(Guid authorId, Guid courseId)
 	{
 		if (authorId == Guid.Empty)
 		{
@@ -47,10 +44,8 @@ public class CourseLibraryRepository : ICourseLibraryRepository
 			throw new ArgumentNullException(nameof(courseId));
 		}
 
-#pragma warning disable CS8603 // Possible null reference return.
 		return await _context.Courses
 		  .Where(c => c.AuthorId == authorId && c.Id == courseId).FirstOrDefaultAsync();
-#pragma warning restore CS8603 // Possible null reference return.
 	}
 
 	public async Task<IEnumerable<Course>> GetCoursesAsync(Guid authorId)
@@ -67,18 +62,16 @@ public class CourseLibraryRepository : ICourseLibraryRepository
 
 	public void UpdateCourse(Course course)
 	{
-		// no code in this implementation
+		//no need for implementation it's just for clarification
 	}
+
 
 	public void AddAuthor(Author author)
 	{
-		if (author == null)
-		{
-			throw new ArgumentNullException(nameof(author));
-		}
+		ArgumentNullException.ThrowIfNull(author);
 
-		// the repository fills the id (instead of using identity columns)
-		author.Id = Guid.NewGuid();
+		//// the repository fills the id (instead of using identity columns)
+		//author.Id = Guid.NewGuid();
 
 		foreach (var course in author.Courses)
 		{
@@ -100,24 +93,19 @@ public class CourseLibraryRepository : ICourseLibraryRepository
 
 	public void DeleteAuthor(Author author)
 	{
-		if (author == null)
-		{
-			throw new ArgumentNullException(nameof(author));
-		}
+		ArgumentNullException.ThrowIfNull(author);
 
 		_context.Authors.Remove(author);
 	}
 
-	public async Task<Author> GetAuthorAsync(Guid authorId)
+	public async Task<Author?> GetAuthorAsync(Guid authorId)
 	{
 		if (authorId == Guid.Empty)
 		{
 			throw new ArgumentNullException(nameof(authorId));
 		}
 
-#pragma warning disable CS8603 // Possible null reference return.
 		return await _context.Authors.FirstOrDefaultAsync(a => a.Id == authorId);
-#pragma warning restore CS8603 // Possible null reference return.
 	}
 
 
@@ -128,10 +116,7 @@ public class CourseLibraryRepository : ICourseLibraryRepository
 
 	public async Task<IEnumerable<Author>> GetAuthorsAsync(IEnumerable<Guid> authorIds)
 	{
-		if (authorIds == null)
-		{
-			throw new ArgumentNullException(nameof(authorIds));
-		}
+		ArgumentNullException.ThrowIfNull(authorIds);
 
 		return await _context.Authors.Where(a => authorIds.Contains(a.Id))
 			.OrderBy(a => a.FirstName)
@@ -141,8 +126,7 @@ public class CourseLibraryRepository : ICourseLibraryRepository
 
 	public void UpdateAuthor(Author author)
 	{
-		var authorToUpdate =_context.Authors.FirstOrDefault(a=>a.Id==author.Id);
-		authorToUpdate = author;
+		//no need for any implementation
 	}
 
 	public async Task<bool> SaveAsync()
