@@ -1,15 +1,18 @@
-
 using CourseLibrary.API.DbContexts;
 using CourseLibrary.API.Services;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Serialization;
+using CourseLibrary.API.Entities;
+using CourseLibrary.API.Services.PropertiesMappingDictionaries;
+using CourseLibrary.API.Services.Repositories.Interfaces;
+using CourseLibrary.API.Services.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers(opt=>opt.ReturnHttpNotAcceptable = true)
-	.AddNewtonsoftJson(setupAction=>
+builder.Services.AddControllers(opt => opt.ReturnHttpNotAcceptable = true)
+	.AddNewtonsoftJson(setupAction =>
 	setupAction.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver()
 	)
 	.AddXmlDataContractSerializerFormatters().ConfigureApiBehaviorOptions(setupAction =>
@@ -47,11 +50,14 @@ builder.Services.AddControllers(opt=>opt.ReturnHttpNotAcceptable = true)
 		};
 	});
 
+builder.Services.AddTransient<Dictionary<string, PropertyMappingValue<Course>>, CoursePropertyMapping>();
+builder.Services.AddTransient<Dictionary<string, PropertyMappingValue<Author>>, AuthorPropertyMapping>();
 
-builder.Services.AddScoped<ICourseLibraryRepository, CourseLibraryRepository>();
+builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
 builder.Services.AddDbContext<CourseLibraryDbContext>(options =>
 {
-    options.UseSqlite(
+	options.UseSqlite(
 		builder.Configuration
 		.GetConnectionString("ApplicationConnectionString"));
 });
@@ -64,9 +70,9 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseDeveloperExceptionPage();
-    app.UseSwagger();
-    app.UseSwaggerUI();
+	app.UseDeveloperExceptionPage();
+	app.UseSwagger();
+	app.UseSwaggerUI();
 }
 else
 {

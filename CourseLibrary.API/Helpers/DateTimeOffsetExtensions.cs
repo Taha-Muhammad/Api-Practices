@@ -10,7 +10,6 @@ public static class DateTimeOffsetExtensions
 		{
 			age--;
 		}
-
 		return age;
 	}
 }

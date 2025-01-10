@@ -23,6 +23,7 @@ public class ResourceUris
 						pageSize = resourceParameters.PageSize,
 						mainCategory,
 						title,
+						orderBy = resourceParameters.OrderBy,
 						searchQuery = resourceParameters.SearchQuery
 					});
 			case ResourceUriType.NextPage:
@@ -33,6 +34,7 @@ public class ResourceUris
 						pageSize = resourceParameters.PageSize,
 						mainCategory,
 						title,
+						orderBy = resourceParameters.OrderBy,
 						searchQuery = resourceParameters.SearchQuery
 					});
 				return result;
@@ -44,6 +46,7 @@ public class ResourceUris
 						pageSize = resourceParameters.PageSize,
 						mainCategory,
 						title,
+						orderBy = resourceParameters.OrderBy,
 						searchQuery = resourceParameters.SearchQuery
 					});
 		}

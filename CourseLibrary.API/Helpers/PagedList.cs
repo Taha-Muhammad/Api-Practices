@@ -13,7 +13,7 @@ public class PagedList<T> : List<T>
 	public bool HasPrevious => (CurrentPage > 1);
 	public bool HasNext => (CurrentPage < TotalPages);
 
-	public PagedList(List<T> items, int count, int pageNumber, int pageSize)
+	private PagedList(List<T> items, int count, int pageNumber, int pageSize)
 	{
 		PageSize = pageSize;
 		CurrentPage = pageNumber;
@@ -21,6 +21,7 @@ public class PagedList<T> : List<T>
 		TotalPages = (int)Math.Ceiling(count / (double)pageSize);
 		AddRange(items);
 	}
+
 	public static async Task<PagedList<T>> CreateAsync(
 		IQueryable<T> source, int pageNumber, int pageSize)
 	{
@@ -29,6 +30,7 @@ public class PagedList<T> : List<T>
 			.Take(pageSize).ToListAsync();
 		return new PagedList<T>(items, count, pageNumber, pageSize);
 	}
+
 	public string CreatePaginationHeaderContent(BaseResourceParameters resourceParameters,
 		PagedList<T> pagedList,
 		IUrlHelper Url,

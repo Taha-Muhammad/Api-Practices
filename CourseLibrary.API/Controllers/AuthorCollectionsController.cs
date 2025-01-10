@@ -2,7 +2,7 @@
 using CourseLibrary.API.Entities;
 using CourseLibrary.API.Helpers;
 using CourseLibrary.API.Models;
-using CourseLibrary.API.Services;
+using CourseLibrary.API.Services.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CourseLibrary.API.Controllers
@@ -11,12 +11,12 @@ namespace CourseLibrary.API.Controllers
 	[ApiController]
 	public class AuthorCollectionsController : ControllerBase
 	{
-		private readonly ICourseLibraryRepository _courseLibraryRepository;
+		private readonly IAuthorRepository _authorRepository;
 		private readonly IMapper _mapper;
-		public AuthorCollectionsController(ICourseLibraryRepository courseLibraryRepository, IMapper mapper)
+		public AuthorCollectionsController(IAuthorRepository authorRepository, IMapper mapper)
 		{
-			_courseLibraryRepository = courseLibraryRepository ??
-				throw new ArgumentNullException(nameof(courseLibraryRepository));
+			_authorRepository = authorRepository ??
+				throw new ArgumentNullException(nameof(authorRepository));
 			_mapper = mapper ??
 				throw new ArgumentNullException(nameof(mapper));
 		}
@@ -27,7 +27,7 @@ namespace CourseLibrary.API.Controllers
 			([ModelBinder(BinderType = typeof(ArrayModelBinder))]
 			[FromRoute] IEnumerable<Guid> authorIds)
 		{
-			var authorEntities = await _courseLibraryRepository
+			var authorEntities = await _authorRepository
 				.GetAuthorsAsync(authorIds);
 
 			if(authorEntities.Count()!=authorIds.Count())
@@ -44,9 +44,9 @@ namespace CourseLibrary.API.Controllers
 			var authorEntities = _mapper.Map<IEnumerable<Author>>(authorCollection);
 			foreach (var author in authorEntities)
 			{
-				_courseLibraryRepository.AddAuthor(author);
+				_authorRepository.AddAuthor(author);
 			}
-			await _courseLibraryRepository.SaveAsync();
+			await _authorRepository.SaveAsync();
 			
 			var authorCollectionToReturn =
 				_mapper.Map<IEnumerable<AuthorDto>>(authorEntities);
@@ -64,15 +64,15 @@ namespace CourseLibrary.API.Controllers
 			[ModelBinder(BinderType = typeof(ArrayModelBinder))]
 			[FromRoute] IEnumerable<Guid> authorIds)
 		{
-			var authors = await _courseLibraryRepository.GetAuthorsAsync(authorIds);
+			var authors = await _authorRepository.GetAuthorsAsync(authorIds);
 			if(authors == null||authors.Count()!=authorIds.Count())
 				return NotFound();
 
 			foreach (var author in authors)
 			{
-				_courseLibraryRepository.DeleteAuthor(author);
+				_authorRepository.DeleteAuthor(author);
 			}
-			await _courseLibraryRepository.SaveAsync();
+			await _authorRepository.SaveAsync();
 
 			return NoContent();
 		}

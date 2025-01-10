@@ -1,0 +1,238 @@
+﻿@CourseLibrary.API_HostAddress = https://localhost:7081
+//author controller
+GET {{CourseLibrary.API_HostAddress}}/api/authors?pagesize=2
+
+###
+//Look at the headers to see paging informations
+
+GET {{CourseLibrary.API_HostAddress}}/api/authors?pagenumber=2&pagesize=2
+
+###
+GET {{CourseLibrary.API_HostAddress}}/api/authors?maincategory=Singing
+
+###
+GET {{CourseLibrary.API_HostAddress}}/api/authors?maincategory=Singing&searchquery=the
+
+###
+GET {{CourseLibrary.API_HostAddress}}/api/authors?pagesize=2&pagenumber=1&searchquery=in
+
+###
+GET {{CourseLibrary.API_HostAddress}}/api/authors?orderby=name
+
+###
+GET {{CourseLibrary.API_HostAddress}}/api/authors?orderby=name%20desc
+
+###
+GET {{CourseLibrary.API_HostAddress}}/api/authors?orderby=maincategory,age%20desc
+
+###
+GET {{CourseLibrary.API_HostAddress}}/api/authors?orderby=maincategory,age
+
+###
+GET {{CourseLibrary.API_HostAddress}}/api/authors?orderBy=age%20desc&pagesize=2&pagenumber=2
+
+###
+
+HEAD {{CourseLibrary.API_HostAddress}}/api/authors
+
+###
+
+OPTIONS {{CourseLibrary.API_HostAddress}}/api/authors
+
+###
+
+POST {{CourseLibrary.API_HostAddress}}/api/authors
+Content-Type: application/json
+
+{
+  "firstName" : "Jane",
+	"lastName" : "Skewers",
+	"dateOfBirth" : "1968-03-04T00:00:00",
+	"mainCategory": "Rum"
+}
+
+###
+//the Id you got from the previous request
+@authorId =  154984ea-4a99-46d9-8463-77d060eb9bba 
+GET {{CourseLibrary.API_HostAddress}}/api/authors/{{authorId}}
+
+###
+
+PUT {{CourseLibrary.API_HostAddress}}/api/authors/{{authorId}}
+Content-Type: application/json
+
+{
+  "firstName" : "Jone",
+	"lastName" : "Skewers",
+	"dateOfBirth" : "1969-03-04T00:00:00",
+	"mainCategory": "Rum"
+
+}
+
+###
+
+GET {{CourseLibrary.API_HostAddress}}/api/authors/{{authorId}}
+
+###
+
+PATCH {{CourseLibrary.API_HostAddress}}/api/authors/{{authorId}}
+Content-Type: application/json
+
+[{
+  "op":"replace",
+	"path":"/lastname",
+	"value":"Weak"
+}]
+
+###
+
+GET {{CourseLibrary.API_HostAddress}}/api/authors/{{authorId}}
+
+###
+
+DELETE {{CourseLibrary.API_HostAddress}}/api/authors/{{authorId}}
+
+###
+//should be a not found response
+GET {{CourseLibrary.API_HostAddress}}/api/authors/{{authorId}}
+
+###
+
+//course controller
+@authorIdForCourse = d28888e9-2ba9-473a-a40f-e38cb54f9b35
+
+GET {{CourseLibrary.API_HostAddress}}/api/authors/{{authorIdForCourse}}/courses
+
+###
+//Look at the headers to see paging informations
+
+GET {{CourseLibrary.API_HostAddress}}/api/authors/{{authorIdForCourse}}/courses?orderby=title
+
+###
+
+GET {{CourseLibrary.API_HostAddress}}/api/authors/{{authorIdForCourse}}/courses?orderBy=title%20desc
+
+###
+GET {{CourseLibrary.API_HostAddress}}/api/authors/{{authorIdForCourse}}/courses?orderBy=description
+
+###
+GET {{CourseLibrary.API_HostAddress}}/api/authors/{{authorIdForCourse}}/courses?orderBy=description%20desc
+
+###
+
+GET {{CourseLibrary.API_HostAddress}}/api/authors/{{authorIdForCourse}}/courses?pagesize=2
+
+###
+GET {{CourseLibrary.API_HostAddress}}/api/authors/{{authorIdForCourse}}/courses?pagesize=2&pagenumber=2
+
+###
+GET {{CourseLibrary.API_HostAddress}}/api/authors/{{authorIdForCourse}}/courses?title=Singalong
+
+###
+GET {{CourseLibrary.API_HostAddress}}/api/authors/{{authorIdForCourse}}/courses?searchquery=ing&pagesize=2&pagenumber=1
+
+###
+HEAD {{CourseLibrary.API_HostAddress}}/api/authors/{{authorIdForCourse}}/courses
+
+###
+
+OPTIONS {{CourseLibrary.API_HostAddress}}/api/authors/{{authorIdForCourse}}/courses
+
+###
+
+POST {{CourseLibrary.API_HostAddress}}/api/authors/{{authorIdForCourse}}/courses
+Content-Type: application/json
+
+{
+  "title" : "Top Pirate Hits of Last Decade",
+	"description" : "Learn the lyrics and notes to the latest pirate hits"
+}
+
+###
+//the Id you got from the previous request
+@courseId =  9d8a8d76-79ba-4754-8f58-cca83f86e90d
+
+GET {{CourseLibrary.API_HostAddress}}/api/authors/{{authorIdForCourse}}/courses/{{courseId}}
+
+###
+
+PUT {{CourseLibrary.API_HostAddress}}/api/authors/{{authorIdForCourse}}/courses/{{courseId}}
+Content-Type: application/json
+
+{
+  "title" : "Updated Title",
+	"description" : "Learn the lyrics and notes to the latest pirate hits"
+}
+
+###
+
+GET {{CourseLibrary.API_HostAddress}}/api/authors/{{authorIdForCourse}}/courses/{{courseId}}
+
+###
+
+PATCH {{CourseLibrary.API_HostAddress}}/api/authors/{{authorIdForCourse}}/courses/{{courseId}}
+Content-Type: application/json
+
+[{
+  "op":"replace",
+	"path":"/description",
+	"value":"Updated Description"
+}]
+
+###
+
+GET {{CourseLibrary.API_HostAddress}}/api/authors/{{authorIdForCourse}}/courses/{{courseId}}
+
+###
+
+DELETE {{CourseLibrary.API_HostAddress}}/api/authors/{{authorIdForCourse}}/courses/{{courseId}}
+
+###
+//should be a not found response
+
+GET {{CourseLibrary.API_HostAddress}}/api/authors/{{authorIdForCourse}}/courses/{{courseId}}
+
+###
+
+//AuthorCollections controller
+
+
+OPTIONS {{CourseLibrary.API_HostAddress}}/api/authorcollections
+
+###
+
+POST {{CourseLibrary.API_HostAddress}}/api/authorcollections
+Content-Type: application/json
+
+[{
+	"firstName" : "Jane",
+	"lastName" : "Skewers",
+	"dateOfBirth" : "1968-03-04T00:00:00",
+	"mainCategory": "Rum"
+},
+{
+	"firstName" : "Jack",
+	"lastName" : "Pepper",
+	"dateOfBirth" : "1981-05-03T00:00:00",
+	"mainCategory": "Singing"
+}]
+
+###
+//you will find the Ids in the link in the headers (don't forget to remove the "%20" after the comma.)
+@authorIds = 260f8b3d-55e2-4220-a056-de8365654228,d63581c5-781b-4f0c-bc95-dbde7162e18b
+GET {{CourseLibrary.API_HostAddress}}/api/authorcollections/({{authorIds}})
+
+###
+
+HEAD {{CourseLibrary.API_HostAddress}}/api/authorcollections/({{authorIds}})
+
+###
+
+DELETE {{CourseLibrary.API_HostAddress}}/api/authorcollections/({{authorIds}})
+
+###
+//should be a not found response
+
+GET {{CourseLibrary.API_HostAddress}}/api/authorcollections/({{authorIds}})
+
+###

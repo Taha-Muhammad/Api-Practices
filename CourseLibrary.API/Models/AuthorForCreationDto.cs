@@ -4,6 +4,5 @@
 	{
 		public ICollection<CourseForCreationDto> Courses { get; set; } 
 			= new List<CourseForCreationDto>();
-
 	}
 }

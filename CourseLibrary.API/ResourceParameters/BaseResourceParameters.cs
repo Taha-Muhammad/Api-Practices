@@ -1,16 +1,14 @@
-﻿namespace CourseLibrary.API.ResourceParameters
+﻿namespace CourseLibrary.API.ResourceParameters;
+public abstract class BaseResourceParameters
 {
-	public abstract class BaseResourceParameters
+	private const int maxPageSize = 20;
+	private int _pageSize = 10;
+	public virtual string? SearchQuery { get; set; }
+	public virtual int PageNumber { get; set; } = 1;
+	public virtual int PageSize
 	{
-		private const int maxPageSize = 20;
-		private int _pageSize = 10;
-		public virtual string? SearchQuery { get; set; }
-		public virtual int PageNumber { get; set; } = 1;
-		public virtual int PageSize
-		{
-			get => _pageSize; set => _pageSize
-				= (value > maxPageSize) ? maxPageSize : value;
-		}
+		get => _pageSize; set => _pageSize
+			= (value > maxPageSize) ? maxPageSize : value;
 	}
-
+	public string OrderBy { get; set; } = string.Empty;
 }
