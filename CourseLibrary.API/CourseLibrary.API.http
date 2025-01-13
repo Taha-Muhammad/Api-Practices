@@ -32,6 +32,32 @@ GET {{CourseLibrary.API_HostAddress}}/api/authors?orderby=maincategory,age
 GET {{CourseLibrary.API_HostAddress}}/api/authors?orderBy=age%20desc&pagesize=2&pagenumber=2
 
 ###
+GET {{CourseLibrary.API_HostAddress}}/api/authors?orderBy=age%20desc&pagesize=2&pagenumber=2
+Accept: application/vnd.companyname.hateoas+json
+
+###
+
+GET {{CourseLibrary.API_HostAddress}}/api/authors?fields=id,name
+
+###
+
+GET {{CourseLibrary.API_HostAddress}}/api/authors?orderBy=age%20desc&pagesize=2&pagenumber=2&fields=name,age
+
+###
+
+GET {{CourseLibrary.API_HostAddress}}/api/authors?maincategory=Singing&fields=name,maincategory,age
+
+###
+
+GET {{CourseLibrary.API_HostAddress}}/api/authors?orderBy=age%20desc&pagesize=2&pagenumber=2&fields=name,age
+Accept: application/vnd.companyname.hateoas+json
+
+###
+
+GET {{CourseLibrary.API_HostAddress}}/api/authors?maincategory=Singing&fields=name,maincategory,age
+Accept: application/vnd.companyname.hateoas+json
+
+###
 
 HEAD {{CourseLibrary.API_HostAddress}}/api/authors
 
@@ -42,8 +68,8 @@ OPTIONS {{CourseLibrary.API_HostAddress}}/api/authors
 ###
 
 POST {{CourseLibrary.API_HostAddress}}/api/authors
-Content-Type: application/json
-
+Content-Type: application/vnd.companyname.authorforcreation+json
+//or application/vnd.companyname.authorforcreation+json
 {
   "firstName" : "Jane",
 	"lastName" : "Skewers",
@@ -53,9 +79,10 @@ Content-Type: application/json
 
 ###
 //the Id you got from the previous request
-@authorId =  154984ea-4a99-46d9-8463-77d060eb9bba 
+@authorId = 37cd031a-80f0-4699-9300-6079ebf8a6ec
 GET {{CourseLibrary.API_HostAddress}}/api/authors/{{authorId}}
-
+Accept:application/json
+//or application/vnd.companyname.author.friendly+json
 ###
 
 PUT {{CourseLibrary.API_HostAddress}}/api/authors/{{authorId}}
@@ -72,6 +99,7 @@ Content-Type: application/json
 ###
 
 GET {{CourseLibrary.API_HostAddress}}/api/authors/{{authorId}}
+Accept:application/vnd.companyname.author.full.hateoas+json
 
 ###
 
@@ -87,6 +115,8 @@ Content-Type: application/json
 ###
 
 GET {{CourseLibrary.API_HostAddress}}/api/authors/{{authorId}}
+Accept:application/vnd.companyname.hateoas+json
+//or application/vnd.companyname.author.friendly.hateoas+json
 
 ###
 
@@ -95,8 +125,30 @@ DELETE {{CourseLibrary.API_HostAddress}}/api/authors/{{authorId}}
 ###
 //should be a not found response
 GET {{CourseLibrary.API_HostAddress}}/api/authors/{{authorId}}
+Accept:application/vnd.companyname.author.full+json
+//or 
 
 ###
+POST {{CourseLibrary.API_HostAddress}}/api/authors
+Content-Type: application/vnd.companyname.authorforcreationwithdateofdeath+json
+//or application/vnd.companyname.authorforcreationwithdateofdeath+json
+
+{
+  "firstName" : "Jane",
+	"lastName" : "Skewers",
+	"dateOfBirth" : "1968-03-04T00:00:00",
+	"dateOfDeath" : "2008-03-04T00:00:00",
+	"mainCategory": "Rum"
+}
+
+###
+//the id from the previos request
+@authorWithDateOfDeathId = e623f593-e557-4f0e-99b2-d8b3e3d4cf42
+GET {{CourseLibrary.API_HostAddress}}/api/authors/{{authorWithDateOfDeathId}}
+Accept:application/json
+
+###
+
 
 //course controller
 @authorIdForCourse = d28888e9-2ba9-473a-a40f-e38cb54f9b35
@@ -130,6 +182,12 @@ GET {{CourseLibrary.API_HostAddress}}/api/authors/{{authorIdForCourse}}/courses?
 
 ###
 GET {{CourseLibrary.API_HostAddress}}/api/authors/{{authorIdForCourse}}/courses?searchquery=ing&pagesize=2&pagenumber=1
+
+###
+GET {{CourseLibrary.API_HostAddress}}/api/authors/{{authorIdForCourse}}/courses?searchquery=ing&fields=title,description
+
+###
+GET {{CourseLibrary.API_HostAddress}}/api/authors/{{authorIdForCourse}}/courses?searchquery=ing&pagesize=2&pagenumber=1&fields=id,title
 
 ###
 HEAD {{CourseLibrary.API_HostAddress}}/api/authors/{{authorIdForCourse}}/courses

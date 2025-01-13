@@ -50,8 +50,10 @@ builder.Services.AddControllers(opt => opt.ReturnHttpNotAcceptable = true)
 		};
 	});
 
-builder.Services.AddTransient<Dictionary<string, PropertyMappingValue<Course>>, CoursePropertyMapping>();
-builder.Services.AddTransient<Dictionary<string, PropertyMappingValue<Author>>, AuthorPropertyMapping>();
+builder.Services.AddTransient<PropertyMapping<Course>, CoursePropertyMapping>();
+builder.Services.AddTransient<PropertyMapping<Author>, AuthorPropertyMapping>();
+
+builder.Services.AddTransient<IPropertyCheckerService, PropertyCheckerService>();
 
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
@@ -73,6 +75,12 @@ if (app.Environment.IsDevelopment())
 	app.UseDeveloperExceptionPage();
 	app.UseSwagger();
 	app.UseSwaggerUI();
+	//app.MapScalarApiReference(opt=>
+	//{
+	//	opt.Title = "Course Library";
+	//	opt.WithTheme(ScalarTheme.BluePlanet);
+	//	opt.WithOpenApiRoutePattern("/swagger/{documentName}/swagger.json");
+	//});
 }
 else
 {

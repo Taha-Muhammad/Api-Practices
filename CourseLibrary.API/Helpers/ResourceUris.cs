@@ -21,6 +21,7 @@ public class ResourceUris
 					{
 						pageNumber = resourceParameters.PageNumber - 1,
 						pageSize = resourceParameters.PageSize,
+						fields = resourceParameters.Fields,
 						mainCategory,
 						title,
 						orderBy = resourceParameters.OrderBy,
@@ -30,20 +31,23 @@ public class ResourceUris
 				var result = url.Link(routeName,
 					new
 					{
-						pageNumber = resourceParameters.PageNumber +1,
+						pageNumber = resourceParameters.PageNumber + 1,
 						pageSize = resourceParameters.PageSize,
+						fields = resourceParameters.Fields,
 						mainCategory,
 						title,
 						orderBy = resourceParameters.OrderBy,
 						searchQuery = resourceParameters.SearchQuery
 					});
 				return result;
+			case ResourceUriType.Current:
 			default:
 				return url.Link(routeName,
 					new
 					{
 						pageNumber = resourceParameters.PageNumber,
 						pageSize = resourceParameters.PageSize,
+						fields = resourceParameters.Fields,
 						mainCategory,
 						title,
 						orderBy = resourceParameters.OrderBy,
@@ -55,6 +59,7 @@ public class ResourceUris
 	public enum ResourceUriType
 	{
 		PreviousPage,
-		NextPage
+		NextPage,
+		Current
 	}
 }

@@ -2,6 +2,7 @@
 using CourseLibrary.API.Entities;
 using CourseLibrary.API.Helpers;
 using CourseLibrary.API.ResourceParameters;
+using CourseLibrary.API.Services.PropertiesMappingDictionaries;
 using CourseLibrary.API.Services.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,9 +11,9 @@ namespace CourseLibrary.API.Services.Repositories;
 public class AuthorRepository : IAuthorRepository
 {
 	private readonly CourseLibraryDbContext _context;
-	private readonly Dictionary<string, PropertyMappingValue<Author>> _authorMappingDictionary;
+	private readonly PropertyMapping<Author> _authorMappingDictionary;
 	public AuthorRepository(CourseLibraryDbContext context
-		, Dictionary<string, PropertyMappingValue<Author>> authorMappingDictionary)
+		, PropertyMapping<Author> authorMappingDictionary)
 
 	{
 		_context = context;

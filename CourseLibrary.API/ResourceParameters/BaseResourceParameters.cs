@@ -11,4 +11,5 @@ public abstract class BaseResourceParameters
 			= (value > maxPageSize) ? maxPageSize : value;
 	}
 	public string OrderBy { get; set; } = string.Empty;
+	public string? Fields {  get; set; }
 }

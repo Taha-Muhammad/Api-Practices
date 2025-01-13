@@ -1,6 +1,10 @@
 ﻿using AutoMapper;
-using CourseLibrary.API.Models;
+using CourseLibrary.API.Entities;
+using CourseLibrary.API.Helpers;
+using CourseLibrary.API.Models.CourseDtos;
 using CourseLibrary.API.ResourceParameters;
+using CourseLibrary.API.Services;
+using CourseLibrary.API.Services.PropertiesMappingDictionaries;
 using CourseLibrary.API.Services.Repositories.Interfaces;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -16,41 +20,83 @@ public class CoursesController : ControllerBase
 {
 	private readonly ICourseRepository _courseRepository;
 	private readonly IMapper _mapper;
+	private readonly PropertyMapping<Course> _propertyMapping;
+	private readonly IPropertyCheckerService _propertyCheckerService;
+	private readonly ProblemDetailsFactory _problemDetailsFactory;
 
 	public CoursesController(ICourseRepository courseRepository,
-		IMapper mapper)
+		IMapper mapper,
+		PropertyMapping<Course> propertyMapping,
+		IPropertyCheckerService propertyCheckerService,
+		ProblemDetailsFactory problemDetailsFactory)
 	{
 		_courseRepository = courseRepository ??
 			throw new ArgumentNullException(nameof(courseRepository));
 		_mapper = mapper ??
 			throw new ArgumentNullException(nameof(mapper));
+		_propertyMapping = propertyMapping ??
+			throw new ArgumentNullException(nameof(propertyMapping));
+		_propertyCheckerService = propertyCheckerService ??
+			throw new ArgumentNullException(nameof(propertyCheckerService));
+		_problemDetailsFactory = problemDetailsFactory ??
+			throw new ArgumentNullException(nameof(problemDetailsFactory));
 	}
 
-	[HttpGet(Name ="GetCoursesForAuthor")]
+	[HttpGet(Name = "GetCoursesForAuthor")]
 	[HttpHead]
-	public async Task<ActionResult<IEnumerable<CourseDto>>> GetCoursesForAuthor(Guid authorId, [FromQuery] CoursesResourceParameters coursesResourceParameters)
+	public async Task<IActionResult> GetCoursesForAuthor
+		(Guid authorId,
+		[FromQuery] CoursesResourceParameters coursesResourceParameters)
 	{
 		if (!await _courseRepository.AuthorExistsAsync(authorId))
 		{
 			return NotFound();
 		}
 
-		var coursesForAuthorFromRepo = await _courseRepository.GetCoursesAsync(authorId,coursesResourceParameters);
-		Response.Headers.Append("X-Pagination",coursesForAuthorFromRepo
+		if (!_propertyMapping
+			.ValidMappingExistsFor(coursesResourceParameters.OrderBy))
+			return BadRequest();
+
+		if (!_propertyCheckerService.TypeHasProperties<CourseDto>
+			(coursesResourceParameters.Fields))
+		{
+			return BadRequest(_problemDetailsFactory
+				.CreateProblemDetails(HttpContext,
+				statusCode: 400,
+				detail: $"Not all requested data shaping fields exist on " +
+				$"the resource: {coursesResourceParameters.Fields}")
+				);
+		}
+
+		var coursesForAuthorFromRepo = await _courseRepository.GetCoursesAsync(authorId, coursesResourceParameters);
+		Response.Headers.Append("X-Pagination", coursesForAuthorFromRepo
 			.CreatePaginationHeaderContent(
 				coursesResourceParameters
 				, coursesForAuthorFromRepo, Url,
 				"GetCoursesForAuthor", null,
 				coursesResourceParameters.Title));
-		return Ok(_mapper.Map<IEnumerable<CourseDto>>(coursesForAuthorFromRepo));
+		return Ok(_mapper.Map<IEnumerable<CourseDto>>(
+			coursesForAuthorFromRepo)
+			.ShapeData(coursesResourceParameters.Fields));
 	}
 
 	[HttpGet("{courseId}")]
-	public async Task<ActionResult<CourseDto>> GetCourseForAuthor(Guid authorId, Guid courseId)
+	public async Task<IActionResult> GetCourseForAuthor(Guid authorId,
+		Guid courseId, string? fields)
 	{
 		if (!await _courseRepository.AuthorExistsAsync(authorId))
 		{
 			return NotFound();
+		}
+
+		if (!_propertyCheckerService.TypeHasProperties<CourseDto>(fields))
+		{
+			return BadRequest(_problemDetailsFactory
+				.CreateProblemDetails(HttpContext,
+				statusCode: 400,
+				detail: $"Not all requested data shaping fields exist on " +
+				$"the resource: {fields}")
+				);
 		}
 
 		var courseForAuthorFromRepo = await _courseRepository.GetCourseAsync(authorId, courseId);
@@ -59,10 +105,11 @@ public class CoursesController : ControllerBase
 		{
 			return NotFound();
 		}
-		return Ok(_mapper.Map<CourseDto>(courseForAuthorFromRepo));
+		return Ok(_mapper.Map<CourseDto>(courseForAuthorFromRepo)
+			.ShapeData(fields));
 	}
 
-	[HttpPost]
+	[HttpPost(Name = "CreateCourseForAuthor")]
 	public async Task<ActionResult<CourseDto>> CreateCourseForAuthor(
 			Guid authorId, CourseForCreationDto course)
 	{
@@ -129,7 +176,7 @@ public class CoursesController : ControllerBase
 
 		var courseForAuthorFromRepo = await _courseRepository
 			.GetCourseAsync(authorId, courseId);
-		
+
 		if (courseForAuthorFromRepo == null)
 		{
 			return NotFound();
@@ -156,7 +203,7 @@ public class CoursesController : ControllerBase
 		var courseToPatch = _mapper
 			.Map<CourseForUpdateDto>(courseForAuthorFromRepo);
 
-		patchDocument.ApplyTo(courseToPatch,ModelState);
+		patchDocument.ApplyTo(courseToPatch, ModelState);
 
 		if (!TryValidateModel(courseToPatch))
 			return ValidationProblem(ModelState);

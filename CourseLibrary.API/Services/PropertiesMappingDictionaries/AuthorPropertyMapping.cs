@@ -2,10 +2,10 @@
 
 namespace CourseLibrary.API.Services.PropertiesMappingDictionaries;
 
-public class AuthorPropertyMapping : Dictionary<string, PropertyMappingValue<Author>>
+public class AuthorPropertyMapping : PropertyMapping<Author>
 {
 	public AuthorPropertyMapping()
-		: base(StringComparer.OrdinalIgnoreCase)
+		: base()
 	{
 		var s = new Dictionary<string, PropertyMappingValue<Author>>()
 		{

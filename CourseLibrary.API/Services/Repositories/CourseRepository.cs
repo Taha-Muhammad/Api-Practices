@@ -2,6 +2,7 @@
 using CourseLibrary.API.Entities;
 using CourseLibrary.API.Helpers;
 using CourseLibrary.API.ResourceParameters;
+using CourseLibrary.API.Services.PropertiesMappingDictionaries;
 using CourseLibrary.API.Services.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,10 +11,10 @@ namespace CourseLibrary.API.Services.Repositories;
 public class CourseRepository : ICourseRepository
 {
 	private readonly CourseLibraryDbContext _context;
-	private readonly Dictionary<string, PropertyMappingValue<Course>> _courseMappingDictionary;
+	private readonly PropertyMapping<Course> _courseMappingDictionary;
 
 	public CourseRepository(CourseLibraryDbContext context,
-		Dictionary<string, PropertyMappingValue<Course>> courseMappingDictionary)
+		PropertyMapping<Course> courseMappingDictionary)
 	{
 		_context = context ?? throw new ArgumentNullException(nameof(context));
 		_courseMappingDictionary = courseMappingDictionary;

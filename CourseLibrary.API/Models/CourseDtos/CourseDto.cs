@@ -1,4 +1,4 @@
-﻿namespace CourseLibrary.API.Models
+﻿namespace CourseLibrary.API.Models.CourseDtos
 {
 	public class CourseDto
 	{

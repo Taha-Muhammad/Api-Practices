@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CourseLibrary.API.Models
+namespace CourseLibrary.API.Models.CourseDtos
 {
 	public class CourseForUpdateDto : CourseForManipulationDto
 	{

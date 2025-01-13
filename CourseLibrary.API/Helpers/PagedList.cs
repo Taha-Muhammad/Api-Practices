@@ -36,30 +36,43 @@ public class PagedList<T> : List<T>
 		IUrlHelper Url,
 		string routeName,
 		string? mainCategory = null,
-		string? title = null)
+		string? title = null,
+		bool supportHATEOAS = false)//if the action supports HATEOAS
+									//the links for the previous and next pages will not be in the headers
 	{
-		var previousPageLink = pagedList.HasPrevious ?
-					ResourceUris.CreateResourceUri(
-					resourceParameters,
-					ResourceUris.ResourceUriType.PreviousPage,
-					routeName,
-					Url, mainCategory, title) : null;
+		if (!supportHATEOAS)
+		{
+			var previousPageLink = pagedList.HasPrevious ?
+						ResourceUris.CreateResourceUri(
+						resourceParameters,
+						ResourceUris.ResourceUriType.PreviousPage,
+						routeName,
+						Url, mainCategory, title) : null;
 
-		var nextPageLink = pagedList.HasNext ?
-			ResourceUris.CreateResourceUri(
-		resourceParameters,
-			ResourceUris.ResourceUriType.NextPage,
-			routeName,
-			Url, mainCategory, title) : null;
+			var nextPageLink = pagedList.HasNext ?
+				ResourceUris.CreateResourceUri(
+			resourceParameters,
+				ResourceUris.ResourceUriType.NextPage,
+				routeName,
+				Url, mainCategory, title) : null;
+			var paginationMetadatas = new
+			{
+				totalCount = pagedList.TotalCount,
+				pageSize = pagedList.PageSize,
+				currentPage = pagedList.CurrentPage,
+				totalPages = pagedList.TotalPages,
+				previousPageLink,
+				nextPageLink
+			};
+			return JsonSerializer.Serialize(paginationMetadatas);
 
+		}
 		var paginationMetadata = new
 		{
 			totalCount = pagedList.TotalCount,
 			pageSize = pagedList.PageSize,
 			currentPage = pagedList.CurrentPage,
 			totalPages = pagedList.TotalPages,
-			previousPageLink,
-			nextPageLink
 		};
 		return JsonSerializer.Serialize(paginationMetadata);
 	}

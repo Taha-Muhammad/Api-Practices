@@ -1,16 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CourseLibrary.API.Models;
-public abstract class AuthorForManipulationDto :IValidatableObject
+namespace CourseLibrary.API.Models.AuthorDtos;
+public abstract class AuthorForManipulationDto : IValidatableObject
 {
-	[Required(ErrorMessage ="You should fill out a first name.")]
-	[MaxLength(20, 
+	[Required(ErrorMessage = "You should fill out a first name.")]
+	[MaxLength(20,
 		ErrorMessage = "The first name shouldn't have more than 20 characters.")]
 	public virtual string FirstName { get; set; } = string.Empty;
 	[Required(ErrorMessage = "You should fill out a last name.")]
 	[MaxLength(20,
 		ErrorMessage = "The last name shouldn't have more than 20 characters.")]
-	public  virtual string LastName { get; set; } = string.Empty;
+	public virtual string LastName { get; set; } = string.Empty;
 	[Required(ErrorMessage = "You should fill out a date of birth.")]
 	public virtual DateTimeOffset DateOfBirth { get; set; }
 	[Required(ErrorMessage = "You should fill out a main category.")]
@@ -20,7 +20,7 @@ public abstract class AuthorForManipulationDto :IValidatableObject
 
 	public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 	{
-		if(DateOfBirth>DateTimeOffset.UtcNow.AddYears(-10))
+		if (DateOfBirth > DateTimeOffset.UtcNow.AddYears(-10))
 		{
 			yield return new ValidationResult(
 				"The author must be older than 10 years old.",

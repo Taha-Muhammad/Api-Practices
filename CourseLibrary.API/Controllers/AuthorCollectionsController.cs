@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using CourseLibrary.API.Entities;
 using CourseLibrary.API.Helpers;
-using CourseLibrary.API.Models;
+using CourseLibrary.API.Models.AuthorDtos;
 using CourseLibrary.API.Services.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 

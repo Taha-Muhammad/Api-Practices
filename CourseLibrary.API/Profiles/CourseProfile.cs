@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using CourseLibrary.API.Entities;
-using CourseLibrary.API.Models;
+using CourseLibrary.API.Models.CourseDtos;
 
 namespace CourseLibrary.API.Profiles;
 public class CoursesProfile : Profile
