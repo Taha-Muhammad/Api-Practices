@@ -36,7 +36,7 @@ public class CourseLibraryDbContext : DbContext
 			new Author("Arnold", "The Unseen Stafford", "Singing")
 			{
 				Id = Guid.Parse("102b566b-ba1f-404c-b2df-e2cde39ade09"),
-				DateOfBirth = new DateTime(1957, 3, 6)
+				DateOfBirth = new DateTime(1956, 11, 23)
 			},
 			new Author("Seabury", "Toxic Reyson", "Maps")
 			{

@@ -1,5 +1,8 @@
-﻿namespace CourseLibrary.API.Models
+﻿using System.Runtime.Serialization;
+
+namespace CourseLibrary.API.Models
 {
+	[KnownType(typeof(LinkDto))]
 	public class LinkDto
 	{
 		public string? Href { get; private set; }

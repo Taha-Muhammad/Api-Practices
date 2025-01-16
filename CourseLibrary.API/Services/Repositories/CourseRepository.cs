@@ -28,11 +28,13 @@ public class CourseRepository : ICourseRepository
 
 		return await _context.Authors.AnyAsync(a => a.Id == authorId);
 	}
-	public async Task<PagedList<Course>> GetCoursesAsync(Guid authorId, CoursesResourceParameters resourceParameters)
+	public async Task<PagedList<Course>> GetCoursesAsync(Guid authorId,
+		CoursesResourceParameters resourceParameters)
 	{
 		ArgumentNullException.ThrowIfNull(resourceParameters);
 
-		var courseCollection = _context.Courses as IQueryable<Course>;
+		var courseCollection = _context.Courses
+			.Where(c=>c.AuthorId == authorId);
 
 		if (!string.IsNullOrWhiteSpace(resourceParameters.Title))
 		{
@@ -82,7 +84,7 @@ public class CourseRepository : ICourseRepository
 		}
 
 		return await _context.Courses
-		  .Where(c => c.AuthorId == authorId && c.Id == courseId).FirstOrDefaultAsync();
+		  .FirstOrDefaultAsync(c => c.AuthorId == authorId && c.Id == courseId);
 	}
 	public void AddCourse(Guid authorId, Course course)
 	{

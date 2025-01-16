@@ -16,6 +16,7 @@ namespace CourseLibrary.API.Controllers;
 
 [ApiController]
 [Route("api/authors/{authorId}/courses")]
+[Produces("application/json")]
 public class CoursesController : ControllerBase
 {
 	private readonly ICourseRepository _courseRepository;
@@ -44,6 +45,10 @@ public class CoursesController : ControllerBase
 
 	[HttpGet(Name = "GetCoursesForAuthor")]
 	[HttpHead]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	[ProducesResponseType(StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
+	[Produces(typeof(IEnumerable< CourseDto>))]
 	public async Task<IActionResult> GetCoursesForAuthor
 		(Guid authorId,
 		[FromQuery] CoursesResourceParameters coursesResourceParameters)
@@ -68,7 +73,8 @@ public class CoursesController : ControllerBase
 				);
 		}
 
-		var coursesForAuthorFromRepo = await _courseRepository.GetCoursesAsync(authorId, coursesResourceParameters);
+		var coursesForAuthorFromRepo = await _courseRepository
+			.GetCoursesAsync(authorId, coursesResourceParameters);
 		Response.Headers.Append("X-Pagination", coursesForAuthorFromRepo
 			.CreatePaginationHeaderContent(
 				coursesResourceParameters
@@ -81,6 +87,10 @@ public class CoursesController : ControllerBase
 	}
 
 	[HttpGet("{courseId}")]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	[ProducesResponseType(StatusCodes.Status200OK)]
+	[Produces(typeof(CourseDto))]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
 	public async Task<IActionResult> GetCourseForAuthor(Guid authorId,
 		Guid courseId, string? fields)
 	{
@@ -110,6 +120,9 @@ public class CoursesController : ControllerBase
 	}
 
 	[HttpPost(Name = "CreateCourseForAuthor")]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	[ProducesResponseType(StatusCodes.Status201Created)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
 	public async Task<ActionResult<CourseDto>> CreateCourseForAuthor(
 			Guid authorId, CourseForCreationDto course)
 	{
@@ -127,7 +140,9 @@ public class CoursesController : ControllerBase
 			new { authorId, courseId = courseToReturn.Id },
 			courseToReturn);
 	}
-
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	[ProducesResponseType(StatusCodes.Status204NoContent)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
 	[HttpPut("{courseId}")]
 	public async Task<IActionResult> UpdateCourseForAuthor(Guid authorId,
 	  Guid courseId,
@@ -165,6 +180,9 @@ public class CoursesController : ControllerBase
 		return NoContent();
 	}
 
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	[ProducesResponseType(StatusCodes.Status204NoContent)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
 	[HttpPatch("{courseId}")]
 	public async Task<IActionResult> PartiallyUpdateCourseForAuthor(
 		Guid authorId,
@@ -215,6 +233,8 @@ public class CoursesController : ControllerBase
 		return NoContent();
 	}
 
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	[ProducesResponseType(StatusCodes.Status204NoContent)]
 	[HttpDelete("{courseId}")]
 	public async Task<ActionResult> DeleteCourseForAuthor(Guid authorId, Guid courseId)
 	{
@@ -237,6 +257,7 @@ public class CoursesController : ControllerBase
 	}
 
 	[HttpOptions]
+	[ProducesResponseType(StatusCodes.Status200OK)]
 	public IActionResult GetCoursesOptions(Guid authorId)
 	{
 		Response.Headers.Append("Allow", "GET,HEAD,POST,PUT,PATCH,DELETE,OPTIONS");

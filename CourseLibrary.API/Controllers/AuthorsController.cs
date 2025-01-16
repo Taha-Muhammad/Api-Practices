@@ -18,6 +18,7 @@ namespace CourseLibrary.API.Controllers;
 
 [ApiController]
 [Route("api/authors")]
+[Produces("application/json")]
 public class AuthorsController : ControllerBase
 {
 	private readonly IAuthorRepository _authorRepository;
@@ -45,8 +46,12 @@ public class AuthorsController : ControllerBase
 			throw new ArgumentNullException(nameof(problemDetailsFactory));
 	}
 
+	[RequestHeaderMatchesMediaType("Accept",
+		"application/json")]
+	[Produces("application/json", Type = typeof(AuthorDto))]
 	[HttpGet(Name = "GetAuthors")]
 	[HttpHead]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
 	public async Task<IActionResult> GetAuthors(
 		[FromQuery] AuthorsResourceParameters resourceParameters)
 	{
@@ -80,6 +85,7 @@ public class AuthorsController : ControllerBase
 		"application/vnd.companyname.hateoas+json")]
 	[Produces("application/vnd.companyname.hateoas+json")]
 	[HttpGet]
+	[ApiExplorerSettings(IgnoreApi = true)]
 	public async Task<IActionResult> GetAuthorsWithLinks(
 		[FromQuery] AuthorsResourceParameters resourceParameters)
 	{
@@ -137,12 +143,12 @@ public class AuthorsController : ControllerBase
 
 	[RequestHeaderMatchesMediaType("Accept",
 		"application/json",
-		"application/xml", "application/vnd.companyname.author.friendly+json",
-		"application/vnd.companyname.author.friendly+xml")]
-	[Produces("application/json", "application/xml",
-	"application/vnd.companyname.author.friendly+json",
-		"application/vnd.companyname.author.friendly+xml")]
+		 "application/vnd.companyname.author.friendly+json")]
+	[Produces("application/json",
+	"application/vnd.companyname.author.friendly+json", Type = typeof(AuthorDto))]
 	[HttpGet("{authorId}", Name = "GetAuthor")]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
 	public async Task<IActionResult> GetAuthor(Guid authorId, string? fields)
 	{
 		if (!_propertyCheckerService.TypeHasProperties<AuthorDto>(fields))
@@ -174,6 +180,7 @@ public class AuthorsController : ControllerBase
 "application/vnd.companyname.author.friendly.hateoas+json")]
 	[Produces("application/vnd.companyname.hateoas+json",
 "application/vnd.companyname.author.friendly.hateoas+json")]
+	[ApiExplorerSettings(IgnoreApi = true)]
 	[HttpGet("{authorId}")]
 	public async Task<IActionResult> GetAuthorWithLinks(Guid authorId, string? fields)
 	{
@@ -203,10 +210,9 @@ public class AuthorsController : ControllerBase
 	}
 
 	[RequestHeaderMatchesMediaType("Accept",
-		"application/vnd.companyname.author.full+json",
-		"application/vnd.companyname.author.full+xml")]
-	[Produces("application/vnd.companyname.author.full+json",
-		"application/vnd.companyname.author.full+xml")]
+		"application/vnd.companyname.author.full+json")]
+	[Produces("application/vnd.companyname.author.full+json")]
+	[ApiExplorerSettings(IgnoreApi = true)]
 	[HttpGet("{authorId}")]
 	public async Task<IActionResult> GetFullAuthor(Guid authorId, string? fields)
 	{
@@ -225,13 +231,15 @@ public class AuthorsController : ControllerBase
 		{
 			return NotFound();
 		}
-		return Ok(_mapper.Map<FullAuthorDto>(authorFromRepo)
-				.ShapeData(fields));
+		var authorToReturn = _mapper.Map<FullAuthorDto>(authorFromRepo)
+				.ShapeData(fields);
+		return Ok(authorToReturn);
 	}
 
 	[RequestHeaderMatchesMediaType("Accept",
 		"application/vnd.companyname.author.full.hateoas+json")]
 	[Produces("application/vnd.companyname.author.full.hateoas+json")]
+	[ApiExplorerSettings(IgnoreApi = true)]
 	[HttpGet("{authorId}")]
 	public async Task<IActionResult> GetFullAuthorWithLinks(Guid authorId, string? fields)
 	{
@@ -259,16 +267,15 @@ public class AuthorsController : ControllerBase
 	}
 
 	[RequestHeaderMatchesMediaType("Content-Type",
-		"application/json", "application/xml",
-		"application/vnd.companyname.authorforcreation+json",
-		"application/vnd.companyname.authorforcreation+xml")]
-	[Consumes("application/json", "application/xml",
-		"application/vnd.companyname.authorforcreation+json",
-		"application/vnd.companyname.authorforcreation+xml")]
+		"application/json",
+		"application/vnd.companyname.authorforcreation+json")]
+	[Consumes("application/json",
+		"application/vnd.companyname.authorforcreation+json")]
 	[HttpPost(Name = "CreateAuthor")]
+	[ProducesResponseType(StatusCodes.Status201Created)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
 	public async Task<ActionResult<AuthorDto>> CreateAuthor(AuthorForCreationDto author)
 	{
-
 		var authorEntity = _mapper.Map<Author>(author);
 
 		_authorRepository.AddAuthor(authorEntity);
@@ -287,11 +294,10 @@ public class AuthorsController : ControllerBase
 	}
 
 	[RequestHeaderMatchesMediaType("Content-Type",
-		"application/vnd.companyname.authorforcreationwithdateofdeath+json",
-		"application/vnd.companyname.authorforcreationwithdateofdeath+xml")]
-	[Consumes("application/vnd.companyname.authorforcreationwithdateofdeath+json",
-		"application/vnd.companyname.authorforcreationwithdateofdeath+xml")]
-	[HttpPost(Name = "CreateAuthorWithDateOfDeath")]
+		"application/vnd.companyname.authorforcreationwithdateofdeath+json")]
+	[Consumes("application/vnd.companyname.authorforcreationwithdateofdeath+json")]
+	[ApiExplorerSettings(IgnoreApi = true)]
+	[HttpPost]
 	public async Task<ActionResult<AuthorDto>> CreateAuthorWithDateOfDeath(AuthorWithDateOfDeathForCreationDto author)
 	{
 
@@ -313,6 +319,10 @@ public class AuthorsController : ControllerBase
 	}
 
 	[HttpPut("{authorId}")]
+
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	[ProducesResponseType(StatusCodes.Status204NoContent)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
 	public async Task<IActionResult> UpdateAuthor(Guid authorId, AuthorForUpdateDto author)
 	{
 		var authorEntity = await _authorRepository.GetAuthorAsync(authorId);
@@ -340,6 +350,9 @@ public class AuthorsController : ControllerBase
 	}
 
 	[HttpPatch("{authorId}")]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	[ProducesResponseType(StatusCodes.Status204NoContent)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
 	public async Task<IActionResult> PartiallyUpdateAuthor(
 		Guid authorId,
 		JsonPatchDocument<AuthorForUpdateDto> patchDocument)
@@ -384,6 +397,9 @@ public class AuthorsController : ControllerBase
 	}
 
 	[HttpDelete("{authorId}")]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	[ProducesResponseType(StatusCodes.Status204NoContent)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
 	public async Task<IActionResult> DeleteAuthor(Guid authorId)
 	{
 		var authorToDelete = await _authorRepository.GetAuthorAsync(authorId);

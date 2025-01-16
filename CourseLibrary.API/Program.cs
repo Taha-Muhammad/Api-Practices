@@ -8,6 +8,8 @@ using CourseLibrary.API.Entities;
 using CourseLibrary.API.Services.PropertiesMappingDictionaries;
 using CourseLibrary.API.Services.Repositories.Interfaces;
 using CourseLibrary.API.Services.Repositories;
+using CourseLibrary.API.OperationFilters;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +17,7 @@ builder.Services.AddControllers(opt => opt.ReturnHttpNotAcceptable = true)
 	.AddNewtonsoftJson(setupAction =>
 	setupAction.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver()
 	)
-	.AddXmlDataContractSerializerFormatters().ConfigureApiBehaviorOptions(setupAction =>
+	.ConfigureApiBehaviorOptions(setupAction =>
 	{
 		setupAction.InvalidModelStateResponseFactory = context =>
 		{
@@ -66,7 +68,11 @@ builder.Services.AddDbContext<CourseLibraryDbContext>(options =>
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(setupAction=>
+{
+	setupAction.OperationFilter<AuthorOperationFilters>();
+});
+builder.Services.AddHttpCacheHeaders();
 
 var app = builder.Build();
 
@@ -75,12 +81,12 @@ if (app.Environment.IsDevelopment())
 	app.UseDeveloperExceptionPage();
 	app.UseSwagger();
 	app.UseSwaggerUI();
-	//app.MapScalarApiReference(opt=>
-	//{
-	//	opt.Title = "Course Library";
-	//	opt.WithTheme(ScalarTheme.BluePlanet);
-	//	opt.WithOpenApiRoutePattern("/swagger/{documentName}/swagger.json");
-	//});
+	app.MapScalarApiReference(opt =>
+	{
+		opt.Title = "Course Library";
+		opt.WithTheme(ScalarTheme.BluePlanet);
+		opt.WithOpenApiRoutePattern("/swagger/{documentName}/swagger.json");
+	});
 }
 else
 {
@@ -96,6 +102,8 @@ else
 }
 
 app.UseHttpsRedirection();
+
+app.UseHttpCacheHeaders();
 
 app.UseAuthorization();
 

@@ -7,15 +7,16 @@ using Microsoft.AspNetCore.Mvc;
 namespace CourseLibrary.API.Controllers
 {
 	[Route("api")]
+	[Produces("application/json")]
 	[ApiController]
 	public class RootController : ControllerBase
 	{
-		[HttpGet(Name ="GetRoot")]
+		[HttpGet(Name = "GetRoot")]
 		public IActionResult GetRoot()
 		{
 			var links = new List<LinkDto>();
 			links.Add(
-			new(Url.Link("GetRoot", new {}),
+			new(Url.Link("GetRoot", new { }),
 			"self", "GET"));
 			links.Add(
 			new(Url.Link("GetAuthors", new { }),

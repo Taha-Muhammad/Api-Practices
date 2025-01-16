@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CourseLibrary.API.Controllers
 {
 	[Route("api/authorcollections")]
+	[Produces("application/json")]
 	[ApiController]
 	public class AuthorCollectionsController : ControllerBase
 	{
@@ -20,9 +21,12 @@ namespace CourseLibrary.API.Controllers
 			_mapper = mapper ??
 				throw new ArgumentNullException(nameof(mapper));
 		}
-		
+
 		[HttpHead("({authorIds})")]
 		[HttpGet("({authorIds})")]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		public async Task<ActionResult<IEnumerable<AuthorDto>>> GetAuthorCollection
 			([ModelBinder(BinderType = typeof(ArrayModelBinder))]
 			[FromRoute] IEnumerable<Guid> authorIds)
@@ -30,7 +34,7 @@ namespace CourseLibrary.API.Controllers
 			var authorEntities = await _authorRepository
 				.GetAuthorsAsync(authorIds);
 
-			if(authorEntities.Count()!=authorIds.Count())
+			if (authorEntities.Count() != authorIds.Count())
 				return NotFound();
 
 			var authorsToReturn = _mapper.Map<IEnumerable<AuthorDto>>(authorEntities);
@@ -38,6 +42,8 @@ namespace CourseLibrary.API.Controllers
 		}
 
 		[HttpPost]
+		[ProducesResponseType(StatusCodes.Status201Created)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		public async Task<ActionResult<IEnumerable<AuthorDto>>> CreateAuthorCollection(
 			IEnumerable<AuthorForCreationDto> authorCollection)
 		{
@@ -47,25 +53,29 @@ namespace CourseLibrary.API.Controllers
 				_authorRepository.AddAuthor(author);
 			}
 			await _authorRepository.SaveAsync();
-			
+
 			var authorCollectionToReturn =
 				_mapper.Map<IEnumerable<AuthorDto>>(authorEntities);
-			
-			var authorIdsAsString = string.Join(", ", 
-				authorCollectionToReturn.Select(a=>a.Id));
 
-			return CreatedAtAction(nameof(GetAuthorCollection), 
-				new {authorIds= authorIdsAsString}
-				,authorCollectionToReturn);
+			var authorIdsAsString = string.Join(", ",
+				authorCollectionToReturn.Select(a => a.Id));
+
+			return CreatedAtAction(nameof(GetAuthorCollection),
+				new { authorIds = authorIdsAsString }
+				, authorCollectionToReturn);
 		}
 
 		[HttpDelete("({authorIds})")]
+
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		public async Task<IActionResult> DeleteAuthorCollection(
 			[ModelBinder(BinderType = typeof(ArrayModelBinder))]
 			[FromRoute] IEnumerable<Guid> authorIds)
 		{
 			var authors = await _authorRepository.GetAuthorsAsync(authorIds);
-			if(authors == null||authors.Count()!=authorIds.Count())
+			if (authors == null || authors.Count() != authorIds.Count())
 				return NotFound();
 
 			foreach (var author in authors)
