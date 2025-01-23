@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using GloboTicket.TicketManagement.Application.Contracts.Persistence;
+using GloboTicket.TicketManagement.Application.Exceptions;
 using GloboTicket.TicketManagement.Domain.Entities;
 using MediatR;
 
@@ -23,6 +24,9 @@ namespace GloboTicket.TicketManagement.Application.Features.Events.Queries.GetEv
 			CancellationToken cancellationToken)
 		{
 			var eventEntity = await _eventRepository.GetByIdAsync(request.Id);
+
+			if (eventEntity == null)
+				throw new NotFoundException("Event", request);
 
 			var eventVm = _mapper.Map<EventDetailVm>(eventEntity);
 

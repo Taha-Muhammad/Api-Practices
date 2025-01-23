@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using GloboTicket.TicketManagement.Application.Contracts.Persistence;
+using GloboTicket.TicketManagement.Application.Exceptions;
 using MediatR;
 
 namespace GloboTicket.TicketManagement.Application.Features.Events.Commands.DeleteEvent
@@ -18,6 +19,9 @@ namespace GloboTicket.TicketManagement.Application.Features.Events.Commands.Dele
 			CancellationToken cancellationToken)
 		{
 			var eventToDelete  = await  _eventRepository.GetByIdAsync(request.EventId);
+
+			if (eventToDelete == null)
+				throw new NotFoundException("Event", request);
 
 			await _eventRepository.DeleteAsync(eventToDelete);
 		}
