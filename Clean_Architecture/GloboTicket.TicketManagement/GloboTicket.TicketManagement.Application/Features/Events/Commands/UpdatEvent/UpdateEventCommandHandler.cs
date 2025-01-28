@@ -23,7 +23,7 @@ namespace GloboTicket.TicketManagement.Application.Features.Events.Commands.Upda
 			var eventToUpdate = await _eventRepository.GetByIdAsync(request.EventId);
 			
 			if (eventToUpdate == null)
-				throw new NotFoundException("Event",request);
+				throw new NotFoundException("Event",request.EventId);
 			
 			var validator = 
 				new UpdateEventCommandValidator(_eventRepository);

@@ -21,7 +21,7 @@ namespace GloboTicket.TicketManagement.Application.Features.Events.Commands.Dele
 			var eventToDelete  = await  _eventRepository.GetByIdAsync(request.EventId);
 
 			if (eventToDelete == null)
-				throw new NotFoundException("Event", request);
+				throw new NotFoundException("Event", request.EventId);
 
 			await _eventRepository.DeleteAsync(eventToDelete);
 		}

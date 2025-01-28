@@ -19,5 +19,11 @@ namespace GloboTicket.TicketManagement.Persistence.Repositories
 			}
 			return allCategories;
 		}
+
+		public async Task<Category?> GetCategoryWithEventsAsync(Guid categoryId)
+		{
+			return await _dbContext.Categories.Include(c => c.Events)
+				.FirstOrDefaultAsync(c=>c.CategoryId == categoryId);
+		}
 	}
 }

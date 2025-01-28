@@ -1,8 +1,8 @@
 ﻿using GloboTicket.TicketManagement.Application.Features.Categories.Commands.CreateCategory;
 using GloboTicket.TicketManagement.Application.Features.Categories.Queries.GetCategoriesList;
 using GloboTicket.TicketManagement.Application.Features.Categories.Queries.GetCategoriesListWithEvent;
+using GloboTicket.TicketManagement.Application.Features.Categories.Queries.GetCategoryWithEvents;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GloboTicket.TicketManagement.Api.Controllers
@@ -32,13 +32,23 @@ namespace GloboTicket.TicketManagement.Api.Controllers
 			var dtos = await _mediator.Send(new GetCategoriesListQuery());
 			return Ok(dtos);
 		}
+		[HttpGet("{id}")]
+		public async Task<ActionResult<CategoryEventListVm>> GetCategoryWithEventsById(Guid id)
+		{
+			return Ok(await _mediator.Send(
+				new GetCategoryWithEventsQuery()
+				{ CategoryId = id }));
+		}
 
 		[HttpPost]
 		public async Task<ActionResult<CreateCategoryDto>> CreateCategory(
 			CreateCategoryCommand createCategoryCommand)
 		{
 			var response = await _mediator.Send(createCategoryCommand);
-			return Ok(response.Category);
+			return CreatedAtAction(
+			nameof(GetCategoryWithEventsById),
+			new {id=response.Category.CategoryId}
+			,response.Category);
 		}
 	}
 }

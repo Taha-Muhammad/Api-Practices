@@ -26,7 +26,7 @@ namespace GloboTicket.TicketManagement.Application.Features.Events.Queries.GetEv
 			var eventEntity = await _eventRepository.GetByIdAsync(request.Id);
 
 			if (eventEntity == null)
-				throw new NotFoundException("Event", request);
+				throw new NotFoundException("Event", request.Id);
 
 			var eventVm = _mapper.Map<EventDetailVm>(eventEntity);
 

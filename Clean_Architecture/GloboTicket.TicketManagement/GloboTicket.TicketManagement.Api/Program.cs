@@ -1,6 +1,8 @@
+using GloboTicket.TicketManagement.Api.Middleware;
 using GloboTicket.TicketManagement.Application;
 using GloboTicket.TicketManagement.Infrastructure;
 using GloboTicket.TicketManagement.Persistence;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,7 +11,13 @@ builder.Services.AddApplicationServices()
 	.AddInfrastructureServices(builder.Configuration)
 	.AddPersistenceServices(builder.Configuration);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(cnf =>
+{
+	cnf.ReturnHttpNotAcceptable = true;
+	cnf.Filters.Add(
+	new ProducesAttribute("application/json"));
+	cnf.Filters.Add(new ConsumesAttribute("application/json"));
+});
 builder.Services.AddOpenApi();
 
 
@@ -25,6 +33,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCustomExceptionHandler();
 
 app.UseAuthorization();
 
@@ -52,7 +62,7 @@ public static class WepApplicationExtensions
 			catch (Exception ex)
 			{
 				var logger = scope.ServiceProvider.GetRequiredService<ILogger>();
-				logger?.LogError(ex, "An error occurred while migrating the database.");
+				logger.LogError(ex, "An error occurred while migrating the database.");
 			}
 		}
 	}

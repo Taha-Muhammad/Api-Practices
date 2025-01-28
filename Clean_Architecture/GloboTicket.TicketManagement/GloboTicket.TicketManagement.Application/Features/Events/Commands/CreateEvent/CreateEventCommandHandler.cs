@@ -28,6 +28,8 @@ namespace GloboTicket.TicketManagement.Application.Features.Events.Commands.Crea
 
 		public async Task<Guid> Handle(CreateEventCommand request, CancellationToken cancellationToken)
 		{
+			if(!await _eventRepository.CategoryExists(request.CategoryId))
+				throw new NotFoundException(nameof(request.CategoryId),request.CategoryId);
 			var eventToAdd = _mapper.Map<Event>(request);
 			
 			var validator = new CreateEventCommandValidator(_eventRepository);
